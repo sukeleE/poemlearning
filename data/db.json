@@ -1,0 +1,18 @@
+{
+  "users": [
+    {
+      "id": "u_guest",
+      "username": "游客",
+      "password": "",
+      "createdAt": "2026-04-24T03:26:33.331Z"
+    }
+  ],
+  "currentUser": {
+    "id": "u_guest",
+    "username": "游客"
+  },
+  "articles": [],
+  "likes": [],
+  "favorites": [],
+  "comments": []
+}

@@ -1,0 +1,354 @@
+{
+	"approved" : true,
+	"contentrating" : "Everyone",
+	"description" : "This is a painting created in 1112 AD by an emperor of China\"s Song Dynasty, whose title roughly translates to \"Auspicious Cranes Bringing Blessings.\" The emperor excitedly inscribed beside the work: \"Beautiful white cranes soar and circle in the sky, dancing gracefully while emitting resonant and melodious calls. People gathered below, marveling at the sight, yet the cranes lingered for a long time, reluctant to depart. I am overjoyed to witness such splendor and shall preserve this scene through painting for future generations to admire.\" As you can see, this artwork has traversed time, arriving before your eyes 912 years later. Please enjoy it—perhaps you may sense the delight shared by an ancient Chinese emperor from over nine centuries past, completing a cultural dialogue that spans both time and borders!\r\n宋徽宗赵佶（公元1112年）\r\n政和壬辰上元之次夕，忽有祥云拂郁低映端门，众皆仰而视之。倏有群鹤飞鸣于空中，仍有二鹤对止于鸱尾之端，颇甚奇异。经时不散，迤逦盘旋，自近垓远复还于阊阖之上，往来经度，度复如初。或回旋于太清，或翩跹于下际，掩映浮光流瓦，羽翮之彩色，焕烂陆离，不可胜状。观者数万人，皆叹诧久之。至二鼓方渐散去，犹有百余两未止。朕高凭宸槛，亲睹嘉祥，万宇同欢，实为希遇之庆。不惟目击，并且图形，永作天历之宝鉴云尔。\r\n\r\n2025/03/13 更新，抠图细节优化\r\n2025/03/15 更新，时间大小及位置可调@桃花 \r\n2025/03/25 增加云是否运动选择@b站 *兰墨\r\n2025/03/28 部分字体变为赵佶瘦金体@b站 *兰墨\r\n2025/04/16 Add a “12h/24h” toggle option @Aviiated\r\n\r\n2026/01/08 适用于多种比例屏幕，钱币时间按“政和通宝”样式排布并采用楷书字体 @b站 白隔*\r\n2026/01/30修改干支年错误  @b站 认真的***\r\n\r\n2026/04/06 修正干支历和刻制\r\n新增用户属性，用于选择阴阳历和干支历（阴阳历春节为年首，干支历立春为年首）\r\n新增用户属性，用来区分“古百刻制” “明百刻制”和“清九十六刻制”\r\n以午时为例，午时从11:00开始到13:00结束，分为初正两段\r\n古百刻制：小刻在前\r\n午初初刻(2.4分钟) 午初一刻(14.4分钟) 午初二刻(14.4分钟) 午初三刻(14.4分钟) 午初四刻(14.4分钟)\r\n午正初刻(2.4分钟) 午正一刻(14.4分钟) 午正二刻(14.4分钟) 午正三刻(14.4分钟) 午正四刻(14.4分钟)\r\n明百刻制：小刻在后\r\n午初初刻(14.4分钟) 午初一刻(14.4分钟) 午初二刻(14.4分钟) 午初三刻(14.4分钟) 午初四刻(2.4分钟)\r\n午正初刻(14.4分钟) 午正一刻(14.4分钟) 午正二刻(14.4分钟) 午正三刻(14.4分钟) 午正四刻(2.4分钟)\r\n清九十六刻制：无小刻\r\n午初一刻(15分钟) 午初二刻(15分钟) 午初三刻(15分钟) 午初四刻(15分钟)\r\n午正一刻(15分钟) 午正二刻(15分钟) 午正三刻(15分钟) 午正四刻(15分钟)\r\n",
+	"file" : "scene.json",
+	"general" : 
+	{
+		"properties" : 
+		{
+			"_012" : 
+			{
+				"fraction" : false,
+				"index" : 20,
+				"max" : 2,
+				"min" : 0,
+				"order" : 120,
+				"text" : "刻制(0古百刻, 1明百刻, 2清九十六刻)",
+				"type" : "slider",
+				"value" : 0
+			},
+			"_12hampm" : 
+			{
+				"index" : 26,
+				"order" : 126,
+				"text" : "12h AM/PM",
+				"type" : "bool",
+				"value" : true
+			},
+			"_1cloud1" : 
+			{
+				"index" : 9,
+				"order" : 109,
+				"text" : "运动层云/Moving Cloud",
+				"type" : "bool",
+				"value" : true
+			},
+			"_4" : 
+			{
+				"index" : 3,
+				"order" : 103,
+				"text" : "<big><font color='#33CCFF'>制作：SYKM 原画：赵佶/Zhao Ji",
+				"value" : ""
+			},
+			"art" : 
+			{
+				"index" : 1,
+				"order" : 101,
+				"text" : "<big><font color=#FFFFFF><h5>Thanks for subscribing!<br/>If you like the wallpapers<br/>please leave a free like! Your support keeps me motivated!",
+				"value" : ""
+			},
+			"clocksize" : 
+			{
+				"fraction" : true,
+				"index" : 29,
+				"max" : 10,
+				"min" : 0,
+				"order" : 129,
+				"precision" : 4,
+				"step" : 0.001,
+				"text" : "时间大小/clock size",
+				"type" : "slider",
+				"value" : 1
+			},
+			"cloud" : 
+			{
+				"index" : 8,
+				"order" : 108,
+				"text" : "静止层云/Cloud",
+				"type" : "bool",
+				"value" : true
+			},
+			"cloud1" : 
+			{
+				"index" : 7,
+				"order" : 107,
+				"text" : "云 CLOUD",
+				"type" : "group",
+				"value" : ""
+			},
+			"motionblur" : 
+			{
+				"fraction" : true,
+				"index" : 5,
+				"max" : 1,
+				"min" : 0,
+				"order" : 105,
+				"precision" : 4,
+				"step" : 0.001,
+				"text" : "运动模糊/motion blur",
+				"type" : "slider",
+				"value" : 0.61
+			},
+			"newproperty" : 
+			{
+				"index" : 4,
+				"order" : 104,
+				"text" : "运动模糊/ Motion blur",
+				"type" : "bool",
+				"value" : false
+			},
+			"newproperty1" : 
+			{
+				"index" : 6,
+				"order" : 106,
+				"text" : "纹饰/Ornamentation",
+				"type" : "bool",
+				"value" : true
+			},
+			"newproperty10" : 
+			{
+				"index" : 11,
+				"order" : 111,
+				"text" : "年月 DATE",
+				"type" : "group",
+				"value" : ""
+			},
+			"newproperty11" : 
+			{
+				"index" : 25,
+				"options" : 
+				[
+					{
+						"label" : "12h",
+						"value" : "12h"
+					},
+					{
+						"label" : "24h",
+						"value" : "24h"
+					},
+					{
+						"label" : "无/None",
+						"value" : "无/None"
+					}
+				],
+				"order" : 125,
+				"text" : "时间 Clock",
+				"type" : "combo",
+				"value" : "12h"
+			},
+			"newproperty12" : 
+			{
+				"index" : 24,
+				"order" : 124,
+				"text" : "时间 CLOCK",
+				"type" : "group",
+				"value" : ""
+			},
+			"newproperty2" : 
+			{
+				"index" : 19,
+				"order" : 119,
+				"text" : "十二时辰/Time(CN)",
+				"type" : "bool",
+				"value" : true
+			},
+			"newproperty3" : 
+			{
+				"index" : 12,
+				"order" : 112,
+				"text" : "干支纪年竖/Calendar(CN)",
+				"type" : "bool",
+				"value" : true
+			},
+			"newproperty4" : 
+			{
+				"index" : 13,
+				"order" : 113,
+				"text" : "阴阳历(不勾)/干支历(勾选)",
+				"type" : "bool",
+				"value" : false
+			},
+			"newproperty5" : 
+			{
+				"index" : 10,
+				"order" : 110,
+				"text" : "薄雾/Fog",
+				"type" : "bool",
+				"value" : true
+			},
+			"newproperty6" : 
+			{
+				"condition" : "",
+				"index" : 0,
+				"order" : 100,
+				"text" : "<big><b><font color=#33CCFF><h25>感谢订阅！<br/>如果您觉得壁纸还不错<br/>点个免费的赞吧!创作需要动力~",
+				"value" : "1"
+			},
+			"newproperty7" : 
+			{
+				"index" : 30,
+				"order" : 130,
+				"text" : "投喂 SUPPORT",
+				"type" : "group",
+				"value" : ""
+			},
+			"newproperty8" : 
+			{
+				"fraction" : true,
+				"index" : 17,
+				"max" : 1920,
+				"min" : -1920,
+				"order" : 117,
+				"precision" : 4,
+				"step" : 0.001,
+				"text" : "日期位置x",
+				"type" : "slider",
+				"value" : 0
+			},
+			"newproperty9" : 
+			{
+				"index" : 16,
+				"order" : 116,
+				"text" : "日期 Date",
+				"type" : "bool",
+				"value" : true
+			},
+			"r" : 
+			{
+				"fraction" : true,
+				"index" : 23,
+				"max" : 10,
+				"min" : 0,
+				"order" : 123,
+				"precision" : 2,
+				"step" : 0.1,
+				"text" : "钱币半径r",
+				"type" : "slider",
+				"value" : 1.3209
+			},
+			"schemecolor" : 
+			{
+				"order" : 0,
+				"text" : "ui_browse_properties_scheme_color",
+				"type" : "color",
+				"value" : "0.3764705882352941 0.5176470588235295 0.4196078431372549"
+			},
+			"t" : 
+			{
+				"index" : 31,
+				"order" : 131,
+				"text" : "<big><font color='#33CCFF'>生活不易，非常感谢您的支持.^◡^.~ <br><img src='http://m.qpic.cn/psc?/V53dVxNF0vmt6r2QyJCF3zK81F3ezMuw/TmEUgtj9EK6.7V8ajmQrEJW*8W4eA1gNnS8GAVhr5MITLZDKC9rSy13hWr3kkMB6RzrhUv8lesslv2xCO*NqVade5wSNxntdccKiz*32b8g!/b&bo=gACAAAAAAAADFzI!&rf=viewer_4&t=5' style='width: 200px; height: auto; border: none;'></a></font></big>",
+				"value" : "t"
+			},
+			"wallpaper" : 
+			{
+				"index" : 2,
+				"order" : 102,
+				"text" : "<big><font color='#33CCFF'>有问题可以<a href='https://space.bilibili.com/1552133264?spm_id_from=333.1007.0.0' style='color: inherit; text-decoration: none;'>B站留言</a></font></big>",
+				"value" : "1"
+			},
+			"x" : 
+			{
+				"fraction" : true,
+				"index" : 21,
+				"max" : 3840,
+				"min" : 0,
+				"order" : 121,
+				"precision" : 4,
+				"step" : 0.001,
+				"text" : "钱币位置x",
+				"type" : "slider",
+				"value" : 1920
+			},
+			"x1" : 
+			{
+				"fraction" : true,
+				"index" : 27,
+				"max" : 3840,
+				"min" : 0,
+				"order" : 127,
+				"precision" : 4,
+				"step" : 0.001,
+				"text" : "时间位置clock x",
+				"type" : "slider",
+				"value" : 1920
+			},
+			"x2" : 
+			{
+				"fraction" : true,
+				"index" : 14,
+				"max" : 1920,
+				"min" : -1920,
+				"order" : 114,
+				"precision" : 4,
+				"step" : 0.001,
+				"text" : "干支纪年x",
+				"type" : "slider",
+				"value" : 0
+			},
+			"y" : 
+			{
+				"fraction" : true,
+				"index" : 22,
+				"max" : 2160,
+				"min" : 0,
+				"order" : 122,
+				"precision" : 4,
+				"step" : 0.001,
+				"text" : "钱币位置y",
+				"type" : "slider",
+				"value" : 840
+			},
+			"y1" : 
+			{
+				"fraction" : true,
+				"index" : 28,
+				"max" : 2160,
+				"min" : 0,
+				"order" : 128,
+				"precision" : 4,
+				"step" : 0.001,
+				"text" : "时间位置clock y",
+				"type" : "slider",
+				"value" : 945.7077
+			},
+			"y2" : 
+			{
+				"fraction" : true,
+				"index" : 18,
+				"max" : 1080,
+				"min" : -1080,
+				"order" : 118,
+				"precision" : 4,
+				"step" : 0.001,
+				"text" : "日期位置y",
+				"type" : "slider",
+				"value" : 0
+			},
+			"y3" : 
+			{
+				"fraction" : true,
+				"index" : 15,
+				"max" : 1080,
+				"min" : -1080,
+				"order" : 115,
+				"precision" : 4,
+				"step" : 0.001,
+				"text" : "干支纪年y",
+				"type" : "slider",
+				"value" : 0
+			}
+		}
+	},
+	"preview" : "preview.gif",
+	"ratingsex" : "none",
+	"ratingviolence" : "none",
+	"tags" : [ "Retro" ],
+	"title" : "瑞鹤图-SYKM",
+	"type" : "Scene",
+	"version" : 21,
+	"visibility" : "public",
+	"workshopid" : "3441006668",
+	"workshopurl" : "steam://url/CommunityFilePage/3441006668"
+}
