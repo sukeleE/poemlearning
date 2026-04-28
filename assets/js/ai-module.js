@@ -1,44 +1,15 @@
 (function () {
-  var STORAGE_KEY = "poetry.ai.config.v1";
-
-  // DeepSeek OpenAI-compatible
-  var DEEPSEEK = {
-    endpoint: "https://api.deepseek.com/v1/chat/completions",
-    // 用户指定 DeepSeek-V3.2，若服务端不识别将自动回退
-    modelPrimary: "deepseek-v3.2",
-    modelFallback: "deepseek-chat"
-  };
+  var API_BASE = (window.__POETRY_API_BASE__ || "http://127.0.0.1:3000/api").replace(/\/$/, "");
 
   function readConfig() {
-    try {
-      var raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return { provider: "deepseek", apiKey: "" };
-      var parsed = JSON.parse(raw);
-      return {
-        provider: parsed.provider || "deepseek",
-        apiKey: parsed.apiKey || ""
-      };
-    } catch (e) {
-      return { provider: "deepseek", apiKey: "" };
-    }
+    return { provider: "deepseek", apiKey: "" };
   }
 
-  function writeConfig(next) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-  }
-
-  function ensureApiKey() {
-    var cfg = readConfig();
-    if (!cfg.apiKey) throw new Error("请先在右下角 AI 设置中填写 API Key（仅保存在本地浏览器）");
-    return cfg.apiKey;
-  }
-
-  async function postChat(apiKey, payload) {
-    var res = await fetch(DEEPSEEK.endpoint, {
+  async function postChat(payload) {
+    var res = await fetch(API_BASE + "/ai/chat", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + apiKey
+        "Content-Type": "application/json"
       },
       body: JSON.stringify(payload)
     });
@@ -55,43 +26,31 @@
   }
 
   async function chatComplete(messages, options) {
-    var apiKey = ensureApiKey();
     var temperature = options && typeof options.temperature === "number" ? options.temperature : 0.7;
     var max_tokens = options && typeof options.max_tokens === "number" ? options.max_tokens : 900;
 
-    var base = {
-      model: DEEPSEEK.modelPrimary,
+    var payload = {
+      model: "deepseek-v3.2",
       temperature: temperature,
       max_tokens: max_tokens,
       messages: messages
     };
 
-    try {
-      var json = await postChat(apiKey, base);
-      return (
-        (json.choices && json.choices[0] && json.choices[0].message && json.choices[0].message.content) ||
-        ""
-      );
-    } catch (e) {
-      // 兜底：部分账号/地区可能不认识 v3.2 模型名
-      var retryPayload = Object.assign({}, base, { model: DEEPSEEK.modelFallback });
-      var json2 = await postChat(apiKey, retryPayload);
-      return (
-        (json2.choices && json2.choices[0] && json2.choices[0].message && json2.choices[0].message.content) ||
-        ""
-      );
-    }
+    var wrapped = await postChat(payload);
+    var json = wrapped && wrapped.data ? wrapped.data : wrapped;
+    return (
+      (json.choices && json.choices[0] && json.choices[0].message && json.choices[0].message.content) ||
+      ""
+    );
   }
 
   window.AIModule = {
     getConfig: readConfig,
-    setApiKey: function (apiKey) {
-      var cfg = readConfig();
-      writeConfig({ provider: "deepseek", apiKey: (apiKey || "").trim() });
-      return cfg;
+    setApiKey: function () {
+      return { provider: "deepseek", apiKey: "" };
     },
     clearApiKey: function () {
-      writeConfig({ provider: "deepseek", apiKey: "" });
+      return;
     },
     chatComplete: chatComplete
   };

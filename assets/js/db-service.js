@@ -194,18 +194,22 @@
 
   ensureSeedData();
 
-  // Remote-first API bridge: use backend when available, fallback to localStorage.
+  // Remote-first API bridge: by default require backend SQLite.
   var API_BASE = (window.__POETRY_API_BASE__ || "http://127.0.0.1:3000/api").replace(/\/$/, "");
   var remoteAvailable = null;
+  var remoteCheckedAt = 0;
+  var ALLOW_LOCAL_FALLBACK = !!window.__POETRY_ALLOW_LOCAL_FALLBACK__;
+  var REMOTE_CACHE_MS = 10000;
 
   async function pingRemote() {
-    if (remoteAvailable !== null) return remoteAvailable;
+    if (remoteAvailable !== null && Date.now() - remoteCheckedAt < REMOTE_CACHE_MS) return remoteAvailable;
     try {
       var r = await fetch(API_BASE + "/health", { method: "GET" });
       remoteAvailable = !!(r && r.ok);
     } catch (e) {
       remoteAvailable = false;
     }
+    remoteCheckedAt = Date.now();
     return remoteAvailable;
   }
 
@@ -224,13 +228,24 @@
 
   async function remoteOrLocal(remoteFn, localFn) {
     var ok = await pingRemote();
-    if (!ok) return localFn();
+    if (!ok) {
+      if (ALLOW_LOCAL_FALLBACK) return localFn();
+      throw new Error("数据库服务不可用，请确认后端已启动");
+    }
     try {
       return await remoteFn();
     } catch (e) {
       remoteAvailable = false;
-      return localFn();
+      remoteCheckedAt = Date.now();
+      if (ALLOW_LOCAL_FALLBACK) return localFn();
+      throw e;
     }
+  }
+
+  function emitUserSync(user) {
+    try {
+      window.dispatchEvent(new CustomEvent("db:user-sync", { detail: user || null }));
+    } catch (e) {}
   }
 
   var localDB = DBService;
@@ -293,7 +308,11 @@
       pingRemote().then(function (ok) {
         if (!ok) return;
         remoteDB.getCurrentUser().then(function (u) {
-          if (u && u.id) setCurrentUser({ id: u.id, username: u.username || "游客" });
+          if (u && u.id) {
+            var next = { id: u.id, username: u.username || "游客" };
+            setCurrentUser(next);
+            emitUserSync(next);
+          }
         }).catch(function () {});
       });
       return localUser;
@@ -304,6 +323,7 @@
         function () { return localDB.logout(); }
       ).then(function (res) {
         setCurrentUser({ id: "u_guest", username: "游客" });
+        emitUserSync({ id: "u_guest", username: "游客" });
         return res;
       });
     },
@@ -321,7 +341,9 @@
         function () { return localDB.login(username, password); }
       ).then(function (res) {
         if (res && res.success && res.user && res.user.id) {
-          setCurrentUser({ id: res.user.id, username: res.user.username || username });
+          var next = { id: res.user.id, username: res.user.username || username };
+          setCurrentUser(next);
+          emitUserSync(next);
         }
         return res;
       });

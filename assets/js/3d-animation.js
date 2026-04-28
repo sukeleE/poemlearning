@@ -1427,12 +1427,18 @@ function loadArticle(articleId) {
 }
 
 function getEditorPayload(published) {
-    const title = (document.getElementById('article-title').value || '').trim();
-    const authorInput = (document.getElementById('article-author').value || '').trim();
-    const content = (document.getElementById('article-content').value || '').trim();
+    const titleInput = document.getElementById('poem-compose-title') || document.getElementById('article-title');
+    const contentInput = document.getElementById('poem-compose-text') || document.getElementById('article-content');
+    const authorInputEl = document.getElementById('article-author');
+    const templateSelect = document.getElementById('drum-compose-template');
+
+    const title = (titleInput && titleInput.value ? titleInput.value : '').trim();
+    const authorInput = (authorInputEl && authorInputEl.value ? authorInputEl.value : '').trim();
+    const content = (contentInput && contentInput.value ? contentInput.value : '').trim();
     const user = window.DBService ? window.DBService.getCurrentUser() : { id: 'u_guest', username: '游客' };
     const author = authorInput || user.username || '匿名';
-    return { title, author, content, userId: user.id, published: !!published };
+    const inferredTitle = title || ('未命名古诗 · ' + ((templateSelect && templateSelect.options[templateSelect.selectedIndex]) ? templateSelect.options[templateSelect.selectedIndex].text : '自由体'));
+    return { title: inferredTitle, author, content, userId: user.id, published: !!published };
 }
 
 async function saveArticle() {
@@ -1441,14 +1447,15 @@ async function saveArticle() {
         return;
     }
     const payload = getEditorPayload(false);
-    if (!payload.title || !payload.content) {
-        alert('请填写标题和内容');
+    if (!payload.content) {
+        alert('请先写下诗句内容');
         return;
     }
 
     const result = await window.DBService.createArticle(payload);
     if (result.success) {
-        alert('文章已保存到本地草稿。');
+        setComposeStatus('草稿已保存。');
+        alert('草稿已保存到本地。');
         await loadMyArticles();
     }
 }
@@ -1459,14 +1466,15 @@ async function publishArticle() {
         return;
     }
     const payload = getEditorPayload(true);
-    if (!payload.title || !payload.content) {
-        alert('请填写标题和内容');
+    if (!payload.content) {
+        alert('请先写下诗句内容');
         return;
     }
 
     const result = await window.DBService.createArticle(payload);
     if (result.success) {
-        alert('文章已发布。');
+        setComposeStatus('发表成功，布告板已更新。');
+        alert('发表成功！其它用户可在布告板文章列表浏览此古诗。');
         await updateBulletinBoard();
         await loadMyArticles();
     }
@@ -1474,11 +1482,37 @@ async function publishArticle() {
 
 function previewArticle() {
     const payload = getEditorPayload(false);
-    if (!payload.title || !payload.content) {
-        alert('请填写标题和内容');
+    if (!payload.content) {
+        alert('请先写下诗句内容');
         return;
     }
     alert('标题：' + payload.title + '\n作者：' + payload.author + '\n\n' + payload.content);
+}
+
+function setComposeStatus(message) {
+    const status = document.getElementById('compose-publish-status');
+    if (!status) return;
+    status.textContent = message;
+}
+
+function bindComposeActionButtons() {
+    const publishBtn = document.getElementById('compose-publish-btn');
+    if (publishBtn && !publishBtn.dataset.bound) {
+        publishBtn.addEventListener('click', publishArticle);
+        publishBtn.dataset.bound = '1';
+    }
+
+    const draftBtn = document.getElementById('compose-save-draft-btn');
+    if (draftBtn && !draftBtn.dataset.bound) {
+        draftBtn.addEventListener('click', saveArticle);
+        draftBtn.dataset.bound = '1';
+    }
+
+    const previewBtn = document.getElementById('compose-preview-btn');
+    if (previewBtn && !previewBtn.dataset.bound) {
+        previewBtn.addEventListener('click', previewArticle);
+        previewBtn.dataset.bound = '1';
+    }
 }
 
 async function loadMyArticles() {
@@ -1695,6 +1729,7 @@ window.addEventListener('DOMContentLoaded', async function () {
         console.error('3D 初始化失败:', e);
     }
     initBackgroundMusicControls();
+    bindComposeActionButtons();
     const guideCard = document.querySelector('#3d-scene .card');
     if (guideCard) {
         guideCard.addEventListener('click', function () {

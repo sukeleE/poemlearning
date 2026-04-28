@@ -55,49 +55,22 @@
   }
 
   async function callAI(userPrompt, systemPrompt) {
-    var providerSel = qs("ai-provider-select");
-    var apiKeyInput = qs("ai-api-key");
-    var provider = (providerSel && providerSel.value) || "deepseek";
-    var apiKey = (apiKeyInput && apiKeyInput.value.trim()) || "";
-    var conf = PROVIDERS[provider];
-    if (!conf) throw new Error("未识别的 AI 接口");
-    if (!apiKey) throw new Error("请先填写 API Key");
-
-    var res = await fetch(conf.endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + apiKey
-      },
-      body: JSON.stringify({
-        model: conf.model,
-        temperature: 0.7,
-        messages: [
-          {
-            role: "system",
-            content: systemPrompt || "你是一位古典诗词教学助手，回答要准确、清晰、可直接用于课堂。"
-          },
-          {
-            role: "user",
-            content: userPrompt
-          }
-        ]
-      })
-    });
-
-    if (!res.ok) {
-      var msg = "AI 请求失败: " + res.status;
-      try {
-        var errJson = await res.json();
-        if (errJson && errJson.error && errJson.error.message) {
-          msg += " - " + errJson.error.message;
-        }
-      } catch (e) {}
-      throw new Error(msg);
+    if (!window.AIModule || !window.AIModule.chatComplete) {
+      throw new Error("AI 模块未初始化");
     }
-
-    var json = await res.json();
-    return (json.choices && json.choices[0] && json.choices[0].message && json.choices[0].message.content) || "";
+    return window.AIModule.chatComplete(
+      [
+        {
+          role: "system",
+          content: systemPrompt || "你是一位古典诗词教学助手，回答要准确、清晰、可直接用于课堂。"
+        },
+        {
+          role: "user",
+          content: userPrompt
+        }
+      ],
+      { temperature: 0.7, max_tokens: 900 }
+    );
   }
 
   async function runTask(taskType) {
@@ -199,18 +172,6 @@
       return;
     }
 
-    var provider = (providerSel && providerSel.value) || "deepseek";
-    var apiKey = (apiKeyInput && apiKeyInput.value.trim()) || "";
-    var conf = PROVIDERS[provider];
-    if (!conf) {
-      setComposeStatus("未识别的 AI 接口。", true);
-      return;
-    }
-    if (!apiKey) {
-      setComposeStatus("请先填写 API Key。", true);
-      return;
-    }
-
     var templateName = (templateSel && templateSel.options[templateSel.selectedIndex] && templateSel.options[templateSel.selectedIndex].text) || "未指定";
     var meterGuide = (hintGe && hintGe.textContent) || "";
     var toneGuide = (hintPz && hintPz.textContent) || "";
@@ -244,26 +205,13 @@
     try {
       setComposeStatus("AI 生成中...");
       outputEl.value = "";
-      var result = await fetch(conf.endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + apiKey
-        },
-        body: JSON.stringify({
-          model: conf.model,
-          temperature: 0.7,
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: prompt }
-          ]
-        })
-      });
-      if (!result.ok) {
-        throw new Error("AI 请求失败: " + result.status);
-      }
-      var json = await result.json();
-      var text = (json.choices && json.choices[0] && json.choices[0].message && json.choices[0].message.content) || "";
+      var text = await window.AIModule.chatComplete(
+        [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: prompt }
+        ],
+        { temperature: 0.7, max_tokens: 900 }
+      );
       outputEl.value = text;
       setComposeStatus("AI 生成完成。");
     } catch (e) {
@@ -281,11 +229,7 @@
     var saveBtn = qs("ai-save-config-btn");
     if (saveBtn) {
       saveBtn.addEventListener("click", function () {
-        saveConfig(
-          (providerSel && providerSel.value) || "deepseek",
-          (apiKeyInput && apiKeyInput.value.trim()) || ""
-        );
-        setStatus("AI 配置已保存到本地浏览器。");
+        setStatus("当前为后台统一 Key 模式，无需手动配置。");
       });
     }
 
@@ -345,11 +289,7 @@
     var composeSaveBtn = qs("compose-ai-save-config-btn");
     if (composeSaveBtn) {
       composeSaveBtn.addEventListener("click", function () {
-        saveConfig(
-          (composeProviderSel && composeProviderSel.value) || "deepseek",
-          (composeApiKeyInput && composeApiKeyInput.value.trim()) || ""
-        );
-        setComposeStatus("AI 配置已保存到本地浏览器。");
+        setComposeStatus("当前为后台统一 Key 模式，无需手动配置。");
       });
     }
 

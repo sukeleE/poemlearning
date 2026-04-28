@@ -136,6 +136,7 @@
   function bind() {
     if (!modal || !accountBtn) return;
     refreshAccountUI();
+    window.addEventListener("db:user-sync", refreshAccountUI);
 
     accountBtn.addEventListener("click", function () {
       var user = getCurrentUser();
