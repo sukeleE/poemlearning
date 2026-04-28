@@ -120,6 +120,7 @@
     var selectEl = qs("article-select");
     var poemTitleEl = qs("poem-title");
     var poemTextEl = qs("poem-text");
+    var baseAnalysisEl = qs("article-analysis");
     var outputEl = qs("ai-poem-analysis-output");
     if (!outputEl) return;
 
@@ -136,15 +137,30 @@
       return;
     }
 
+    var baseAnalysis = "";
+    if (baseAnalysisEl) {
+      baseAnalysis = Array.prototype.map
+        .call(baseAnalysisEl.querySelectorAll("p"), function (p) { return (p.textContent || "").trim(); })
+        .filter(Boolean)
+        .join("\n");
+    }
+
     try {
       setStatus("AI 正在生成深度赏析...");
       outputEl.value = "";
       var result = await callAI(
-        "请对下面这首诗输出课堂可用的深度赏析，包含：背景简述、逐联理解、意象与手法、易错点、提问设计。\n题目：" +
-          title +
-          "\n原文：\n" +
-          poem,
-        "你是一位高中语文古诗词教研员，输出结构清晰，便于直接授课。"
+        "请对下面这首诗生成“课堂可直接使用”的深度赏析讲义，按以下固定结构输出：\n" +
+          "【一、30秒速讲】2-3句概括主旨与情绪。\n" +
+          "【二、逐句精读】逐句解释（字面义+情感义+修辞/炼字）。\n" +
+          "【三、意象与结构】说明核心意象、叙事/抒情推进路径。\n" +
+          "【四、高频考点】至少4条（手法、情感、主旨、炼字、语言风格）。\n" +
+          "【五、易错点纠偏】至少3条，采用“误区→纠正”。\n" +
+          "【六、课堂提问设计】基础题2个、进阶题2个、开放题1个，并给参考答案。\n" +
+          "【七、迁移写作】给1个仿写任务（含评价维度）。\n" +
+          "【八、板书建议】给可抄写的板书框架（不超过8行）。\n\n" +
+          "题目：" + title + "\n原文：\n" + poem +
+          (baseAnalysis ? ("\n\n已有人类赏析（可吸收但不要照抄）：\n" + baseAnalysis) : ""),
+        "你是一位高中语文古诗词教研员。要求：内容准确、结构化、可直接课堂落地；先结论后展开；避免空泛套话。"
       );
       outputEl.value = result;
       setStatus("深度赏析生成完成。");

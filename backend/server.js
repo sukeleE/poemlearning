@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const fsSync = require("fs");
 const fs = require("fs/promises");
 const path = require("path");
 const { DatabaseSync } = require("node:sqlite");
@@ -8,8 +9,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const DATA_DIR = path.join(__dirname, "..", "data");
 const DATA_FILE = path.join(DATA_DIR, "db.json");
-const SQLITE_FILE = path.join(DATA_DIR, "app.sqlite");
-const DEEPSEEK_API_KEY = (process.env.DEEPSEEK_API_KEY || "").trim();
+const DEFAULT_SQLITE_DIR = path.join(
+  process.env.LOCALAPPDATA || process.env.HOME || DATA_DIR,
+  "poetry-scroll-app"
+);
+const SQLITE_FILE = process.env.SQLITE_FILE || path.join(DEFAULT_SQLITE_DIR, "app.sqlite");
+const DEEPSEEK_API_KEY = (
+  process.env.DEEPSEEK_API_KEY || "sk-b8fa1b8b80c440dab1c58e8ccf0ca4c9"
+).trim();
 const DEEPSEEK_ENDPOINT = "https://api.deepseek.com/v1/chat/completions";
 
 app.use(cors());
@@ -23,6 +30,7 @@ function uid(prefix) {
   return `${prefix}_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
 }
 
+fsSync.mkdirSync(path.dirname(SQLITE_FILE), { recursive: true });
 const db = new DatabaseSync(SQLITE_FILE);
 db.exec("PRAGMA foreign_keys = ON;");
 db.exec(`
@@ -245,8 +253,6 @@ app.post("/api/ai/chat", async (req, res) => {
   const max_tokens = typeof body.max_tokens === "number" ? body.max_tokens : 900;
   const primaryModel = body.model || "deepseek-v3.2";
   const fallbackModel = "deepseek-chat";
-  const currentUser = getCurrentUser();
-  const logId = uid("ai");
 
   async function requestModel(model) {
     const resp = await fetch(DEEPSEEK_ENDPOINT, {
@@ -280,18 +286,8 @@ app.post("/api/ai/chat", async (req, res) => {
       usedModel = fallbackModel;
       result = await requestModel(fallbackModel);
     }
-    db.prepare(`
-      INSERT INTO ai_logs (id, user_id, model, messages_json, response_json, error, created_at)
-      VALUES (?, ?, ?, ?, ?, NULL, ?)
-    `).run(logId, currentUser.id, usedModel, JSON.stringify(messages), JSON.stringify(result), nowISO());
-
     return res.json({ success: true, data: result });
   } catch (e) {
-    db.prepare(`
-      INSERT INTO ai_logs (id, user_id, model, messages_json, response_json, error, created_at)
-      VALUES (?, ?, ?, ?, NULL, ?, ?)
-    `).run(logId, currentUser.id, primaryModel, JSON.stringify(messages), e.message || "AI 服务调用失败", nowISO());
-
     return res.status(502).json({
       success: false,
       message: e.message || "AI 服务调用失败",

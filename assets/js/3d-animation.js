@@ -12,6 +12,7 @@ let currentActiveObject = null;
 let currentActivePopup = null;
 let coverLoadProgress = 0;
 let coverLoadStallInterval = null;
+let currentReaderArticleId = null;
 
 function clearCoverLoadStallInterval() {
     if (coverLoadStallInterval) {
@@ -78,44 +79,97 @@ const parallaxState = {
 let peachBlossomParticles = [];
 let peachBlossomGeometry, peachBlossomMaterial;
 
-// 文章数据库
+// 文章数据库（15 首高频流行古诗词）
 const articlesDatabase = {
-    'deng-que-lou': {
-        title: '登鹳雀楼',
-        author: '唐 · 王之涣',
-        text: [
-            '白日依山尽，黄河入海流。',
-            '欲穷千里目，更上一层楼。'
-        ],
-        analysis: [
-            '这首诗描绘了诗人登上鹳雀楼所见的壮丽景色，表达了积极向上的进取精神。',
-            '前两句写景，后两句抒情，意境开阔，气势磅礴，是唐代五言绝句的代表作之一。',
-            '诗中"欲穷千里目，更上一层楼"两句，不仅是对自然景色的描绘，更是富含哲理的人生感悟，激励人们不断追求更高的目标。'
-        ]
+    'yong-e': {
+        title: '咏鹅',
+        author: '唐 · 骆宾王',
+        text: ['鹅，鹅，鹅，曲项向天歌。', '白毛浮绿水，红掌拨清波。'],
+        analysis: ['以童真视角抓住鹅的姿态、色彩与动作，形成“可见可听”的画面。', '“白—绿—红”三色对比鲜明，具备强烈视觉识别度。', '语言极简却节奏明快，是入门古诗的典型样本。']
     },
-    '静夜思': {
+    'chun-xiao': {
+        title: '春晓',
+        author: '唐 · 孟浩然',
+        text: ['春眠不觉晓，处处闻啼鸟。', '夜来风雨声，花落知多少。'],
+        analysis: ['从“睡醒听鸟”切入春景，情绪由明快转为含蓄感伤。', '“花落知多少”以问收束，制造余味与想象空间。', '声响意象（啼鸟、风雨）推动时间与情感变化。']
+    },
+    'jing-ye-si': {
         title: '静夜思',
         author: '唐 · 李白',
-        text: [
-            '床前明月光，疑是地上霜。',
-            '举头望明月，低头思故乡。'
-        ],
-        analysis: [
-            '这首诗描写了诗人在寂静的夜晚，看到明月映照在床前，误以为是地上的霜，从而引发了对故乡的思念之情。',
-            '诗的语言简洁明快，意境深远，通过对自然景物的描写，表达了诗人对故乡的深切思念。'
-        ]
+        text: ['床前明月光，疑是地上霜。', '举头望明月，低头思故乡。'],
+        analysis: ['由“看月”触发“思乡”，完成景到情的瞬间转换。', '“举头/低头”对举工整，动作中见心理落差。', '意象朴素、情感普遍，具有跨时代共鸣。']
     },
-    '望庐山瀑布': {
+    'deng-guan-que-lou': {
+        title: '登鹳雀楼',
+        author: '唐 · 王之涣',
+        text: ['白日依山尽，黄河入海流。', '欲穷千里目，更上一层楼。'],
+        analysis: ['前联写宏阔时空，后联升华为主动进取的人生哲思。', '“更上一层楼”把空间动作转化为认知跃迁。', '全诗结构短促有力，典型“由景入理”。']
+    },
+    'min-nong-2': {
+        title: '悯农（其二）',
+        author: '唐 · 李绅',
+        text: ['锄禾日当午，汗滴禾下土。', '谁知盘中餐，粒粒皆辛苦。'],
+        analysis: ['劳动场景的直写强化“粮食来之不易”的伦理意识。', '“粒粒”叠词增强节奏与强调效果。', '现实关怀鲜明，适合劳动教育与价值讨论。']
+    },
+    'wang-lu-shan-pu-bu': {
         title: '望庐山瀑布',
         author: '唐 · 李白',
-        text: [
-            '日照香炉生紫烟，遥看瀑布挂前川。',
-            '飞流直下三千尺，疑是银河落九天。'
-        ],
-        analysis: [
-            '这首诗描绘了庐山瀑布的壮丽景象，表现了诗人对大自然的热爱和赞美之情。',
-            '前两句写香炉峰在阳光的照射下，产生紫色的云烟，远远望去，瀑布像一条白练挂在山前。后两句用夸张的手法，描写瀑布从高处飞泻而下的壮观景象。'
-        ]
+        text: ['日照香炉生紫烟，遥看瀑布挂前川。', '飞流直下三千尺，疑是银河落九天。'],
+        analysis: ['通过夸张与比喻把自然景观神话化，体现浪漫主义气质。', '“挂”与“飞流”构成静动对照，增强画面张力。', '“银河落九天”是古典想象力的代表句式。']
+    },
+    'zeng-wang-lun': {
+        title: '赠汪伦',
+        author: '唐 · 李白',
+        text: ['李白乘舟将欲行，忽闻岸上踏歌声。', '桃花潭水深千尺，不及汪伦送我情。'],
+        analysis: ['以“忽闻”制造戏剧性，友谊主题在结尾集中爆发。', '“深千尺”先极言水深，再反衬情更深。', '口语化叙事增强亲切感与传唱度。']
+    },
+    'huang-he-lou-song-meng': {
+        title: '黄鹤楼送孟浩然之广陵',
+        author: '唐 · 李白',
+        text: ['故人西辞黄鹤楼，烟花三月下扬州。', '孤帆远影碧空尽，唯见长江天际流。'],
+        analysis: ['送别场景以“孤帆”聚焦，镜头感极强。', '前句繁华（烟花三月）与后句空阔（天际长江）形成反差。', '情感表达克制含蓄，典型“以景寓情”。']
+    },
+    'zao-fa-bai-di-cheng': {
+        title: '早发白帝城',
+        author: '唐 · 李白',
+        text: ['朝辞白帝彩云间，千里江陵一日还。', '两岸猿声啼不住，轻舟已过万重山。'],
+        analysis: ['速度感是核心审美，呈现“轻快奔涌”的节奏。', '“啼不住/已过”形成时间错位，增强动态体验。', '景物与心境同频，传达解放感与畅快感。']
+    },
+    'jiu-yue-jiu-ri-yi-shan-dong': {
+        title: '九月九日忆山东兄弟',
+        author: '唐 · 王维',
+        text: ['独在异乡为异客，每逢佳节倍思亲。', '遥知兄弟登高处，遍插茱萸少一人。'],
+        analysis: ['“异乡/佳节”双重触发思亲情绪，情感浓度高。', '结句“少一人”以缺席书写在场，余味深长。', '节令民俗（登高、茱萸）增强文化记忆。']
+    },
+    'jiang-xue': {
+        title: '江雪',
+        author: '唐 · 柳宗元',
+        text: ['千山鸟飞绝，万径人踪灭。', '孤舟蓑笠翁，独钓寒江雪。'],
+        analysis: ['前联极写“空”，后联以“孤钓”立起人格形象。', '数量词“千/万”与“绝/灭”构成冷峻压迫感。', '景象清寒而精神坚韧，具有象征意味。']
+    },
+    'bo-chuan-gua-zhou': {
+        title: '泊船瓜洲',
+        author: '宋 · 王安石',
+        text: ['京口瓜洲一水间，钟山只隔数重山。', '春风又绿江南岸，明月何时照我还。'],
+        analysis: ['地理“近”与归家“难”形成心理张力。', '“又绿”一字活写春风与时间感，炼字经典。', '结句设问增强归思绵长感。']
+    },
+    'ti-xi-lin-bi': {
+        title: '题西林壁',
+        author: '宋 · 苏轼',
+        text: ['横看成岭侧成峰，远近高低各不同。', '不识庐山真面目，只缘身在此山中。'],
+        analysis: ['前联呈现视角差异，后联升华为认知哲理。', '“身在此山中”提示观察者位置对判断的影响。', '常用于讨论多元视角与批判思维。']
+    },
+    'shi-hui-yin': {
+        title: '石灰吟',
+        author: '明 · 于谦',
+        text: ['千锤万凿出深山，烈火焚烧若等闲。', '粉骨碎身浑不怕，要留清白在人间。'],
+        analysis: ['以石灰自喻，构建“磨炼—坚守—价值”的人格叙事。', '强烈动作词群（锤、凿、焚）塑造悲壮力度。', '“清白”核心价值具有道德教育意义。']
+    },
+    'shi-er': {
+        title: '示儿',
+        author: '宋 · 陆游',
+        text: ['死去元知万事空，但悲不见九州同。', '王师北定中原日，家祭无忘告乃翁。'],
+        analysis: ['临终语境增强情感真实性，爱国主题直抵人心。', '“万事空”与“九州同”构成价值取舍。', '结句以家祭嘱托历史责任，沉痛有力。']
     }
 };
 
@@ -1426,6 +1480,27 @@ function loadArticle(articleId) {
     });
 }
 
+function populateArticleSelect() {
+    const select = document.getElementById('article-select');
+    if (!select) return;
+    const entries = Object.entries(articlesDatabase);
+    if (!entries.length) return;
+
+    const currentValue = select.value;
+    select.innerHTML = '';
+    entries.forEach(([id, article]) => {
+        const option = document.createElement('option');
+        option.value = id;
+        option.textContent = article.title + ' - ' + article.author;
+        select.appendChild(option);
+    });
+
+    const hasCurrent = entries.some(([id]) => id === currentValue);
+    const nextId = hasCurrent ? currentValue : entries[0][0];
+    select.value = nextId;
+    loadArticle(nextId);
+}
+
 function getEditorPayload(published) {
     const titleInput = document.getElementById('poem-compose-title') || document.getElementById('article-title');
     const contentInput = document.getElementById('poem-compose-text') || document.getElementById('article-content');
@@ -1493,6 +1568,34 @@ function setComposeStatus(message) {
     const status = document.getElementById('compose-publish-status');
     if (!status) return;
     status.textContent = message;
+}
+
+function requireLoginForAction(actionName) {
+    const safeActionName = actionName || '该操作';
+    if (!window.DBService || !window.DBService.getCurrentUser) {
+        alert('数据服务未初始化，暂无法执行' + safeActionName);
+        return false;
+    }
+    const user = window.DBService.getCurrentUser();
+    const isGuest = !user || !user.id || user.id === 'u_guest';
+    if (!isGuest) return true;
+
+    alert('请先登录后再' + safeActionName);
+    const accountBtn = document.getElementById('navAccountBtn');
+    if (accountBtn) accountBtn.click();
+    return false;
+}
+
+function escapeHtml(text) {
+    return String(text || '').replace(/[&<>"']/g, function (s) {
+        return ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        })[s];
+    });
 }
 
 function bindComposeActionButtons() {
@@ -1567,6 +1670,39 @@ async function removeArticle(articleId) {
     await updateBulletinBoard();
 }
 
+async function createArticleCardElement(article) {
+    const comments = await window.DBService.getComments(article.id);
+    const isFavorited = await window.DBService.isFavorited(article.id);
+    const commentCount = comments.length;
+    const createdLabel = article.createdAt ? (' | 发布时间：' + new Date(article.createdAt).toLocaleString()) : '';
+    const safeTitle = escapeHtml(article.title || '无题');
+    const safeAuthor = escapeHtml(article.author || '匿名');
+    const safePreview = escapeHtml((article.content || '').length > 88 ? (article.content || '').slice(0, 88) + '...' : (article.content || ''));
+
+    const card = document.createElement('div');
+    card.className = 'article-card';
+    card.innerHTML =
+        '<h4>' + safeTitle + '</h4>' +
+        '<div class="article-meta">作者：' + safeAuthor + createdLabel + '</div>' +
+        '<p>' + safePreview + '</p>' +
+        '<div class="article-actions">' +
+        '  <button class="btn" onclick="openArticleReader(\'' + article.id + '\')">阅读</button>' +
+        '  <button class="btn" onclick="likeArticle(\'' + article.id + '\')">点赞 (' + (article.likes || 0) + ')</button>' +
+        '  <button class="btn' + (isFavorited ? ' btn-secondary' : '') + '" onclick="toggleFavorite(\'' + article.id + '\')">' + (isFavorited ? '已收藏' : '收藏') + ' (' + (article.favoriteCount || 0) + ')</button>' +
+        '  <button class="btn" onclick="toggleComments(\'' + article.id + '\')">评论 (' + commentCount + ')</button>' +
+        '</div>' +
+        '<div id="comments-box-' + article.id + '" style="display:none; margin-top:10px;">' +
+        '  <div id="comments-list-' + article.id + '" style="margin-bottom:10px;">' +
+           comments.map(c => '<p style="margin:6px 0; color:#5a422b;"><strong>' + escapeHtml(c.username) + '：</strong>' + escapeHtml(c.content) + '</p>').join('') +
+        '  </div>' +
+        '  <div style="display:flex; gap:8px;">' +
+        '    <input id="comment-input-' + article.id + '" type="text" placeholder="写下评论..." style="flex:1; padding:8px; border:1px solid rgba(121,85,72,0.3);" />' +
+        '    <button class="btn" onclick="addComment(\'' + article.id + '\')">发表</button>' +
+        '  </div>' +
+        '</div>';
+    return card;
+}
+
 async function updateBulletinBoard() {
     const container = document.getElementById('articles-list');
     if (!container || !window.DBService) return;
@@ -1578,29 +1714,128 @@ async function updateBulletinBoard() {
 
     container.innerHTML = '';
     for (const article of articles) {
-        const comments = await window.DBService.getComments(article.id);
-        const card = document.createElement('div');
-        card.className = 'article-card';
-        card.innerHTML =
-            '<h4>' + article.title + '</h4>' +
-            '<div class="article-meta">作者：' + article.author + ' | 发布时间：' + new Date(article.createdAt).toLocaleString() + '</div>' +
-            '<p>' + article.content + '</p>' +
-            '<div class="article-actions">' +
-            '  <button class="btn" onclick="likeArticle(\'' + article.id + '\')">点赞 (' + (article.likes || 0) + ')</button>' +
-            '  <button class="btn" onclick="toggleFavorite(\'' + article.id + '\')">收藏 (' + (article.favoriteCount || 0) + ')</button>' +
-            '  <button class="btn" onclick="toggleComments(\'' + article.id + '\')">评论 (' + comments.length + ')</button>' +
-            '</div>' +
-            '<div id="comments-box-' + article.id + '" style="display:none; margin-top:10px;">' +
-            '  <div id="comments-list-' + article.id + '" style="margin-bottom:10px;">' +
-               comments.map(c => '<p style="margin:6px 0; color:#5a422b;"><strong>' + c.username + '：</strong>' + c.content + '</p>').join('') +
-            '  </div>' +
-            '  <div style="display:flex; gap:8px;">' +
-            '    <input id="comment-input-' + article.id + '" type="text" placeholder="写下评论..." style="flex:1; padding:8px; border:1px solid rgba(121,85,72,0.3);" />' +
-            '    <button class="btn" onclick="addComment(\'' + article.id + '\')">发表</button>' +
-            '  </div>' +
-            '</div>';
+        const card = await createArticleCardElement(article);
         container.appendChild(card);
     }
+}
+
+function ensureArticleReaderModal() {
+    let modal = document.getElementById('article-reader-modal');
+    if (modal) return modal;
+    modal = document.createElement('div');
+    modal.id = 'article-reader-modal';
+    modal.style.cssText = 'display:none;position:fixed;inset:0;z-index:2200;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;padding:20px;';
+    modal.innerHTML =
+        '<div style="width:min(920px,96vw);max-height:92vh;overflow:auto;background:rgba(255,248,238,0.98);border:1px solid rgba(121,85,72,0.35);padding:20px 20px 14px;box-shadow:0 16px 42px rgba(0,0,0,0.25);border-radius:12px;">' +
+        '  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">' +
+        '    <div>' +
+        '      <h3 id="reader-title" style="margin:0 0 8px;color:#5a422b;font-size:1.4rem;"></h3>' +
+        '      <div id="reader-meta" style="color:#7a5a3d;font-size:.92rem;"></div>' +
+        '    </div>' +
+        '    <button class="btn btn-secondary" id="reader-close-btn" type="button">关闭</button>' +
+        '  </div>' +
+        '  <div id="reader-content" style="margin-top:14px;color:#2c1f14;line-height:1.85;white-space:pre-wrap;"></div>' +
+        '  <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;">' +
+        '    <button class="btn" id="reader-like-btn" type="button">点赞</button>' +
+        '    <button class="btn" id="reader-favorite-btn" type="button">收藏</button>' +
+        '    <button class="btn btn-secondary" id="reader-refresh-btn" type="button">刷新数据</button>' +
+        '  </div>' +
+        '  <div id="reader-stats" style="margin-top:10px;color:#7a5a3d;font-size:.92rem;"></div>' +
+        '  <div style="margin-top:16px;padding-top:12px;border-top:1px dashed rgba(121,85,72,0.28);">' +
+        '    <h4 style="margin:0 0 10px;color:#5a422b;">评论区</h4>' +
+        '    <div id="reader-comments-list" style="max-height:240px;overflow:auto;padding-right:6px;margin-bottom:10px;"></div>' +
+        '    <div style="display:flex;gap:8px;">' +
+        '      <input id="reader-comment-input" type="text" placeholder="写下你的评论..." style="flex:1;padding:8px;border:1px solid rgba(121,85,72,0.3);" />' +
+        '      <button class="btn" id="reader-comment-submit" type="button">发表</button>' +
+        '    </div>' +
+        '  </div>' +
+        '</div>';
+    document.body.appendChild(modal);
+
+    modal.addEventListener('click', function (e) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+            currentReaderArticleId = null;
+        }
+    });
+    document.getElementById('reader-close-btn').addEventListener('click', function () {
+        modal.style.display = 'none';
+        currentReaderArticleId = null;
+    });
+    document.getElementById('reader-like-btn').addEventListener('click', async function () {
+        if (!currentReaderArticleId || !window.DBService) return;
+        if (!requireLoginForAction('点赞')) return;
+        await window.DBService.toggleLike(currentReaderArticleId);
+        await refreshReaderArticle(currentReaderArticleId);
+        await updateBulletinBoard();
+    });
+    document.getElementById('reader-favorite-btn').addEventListener('click', async function () {
+        if (!currentReaderArticleId || !window.DBService) return;
+        if (!requireLoginForAction('收藏')) return;
+        await window.DBService.toggleFavorite(currentReaderArticleId);
+        await refreshReaderArticle(currentReaderArticleId);
+        await updateBulletinBoard();
+    });
+    document.getElementById('reader-refresh-btn').addEventListener('click', async function () {
+        if (!currentReaderArticleId) return;
+        await refreshReaderArticle(currentReaderArticleId);
+    });
+    document.getElementById('reader-comment-submit').addEventListener('click', async function () {
+        if (!currentReaderArticleId || !window.DBService) return;
+        if (!requireLoginForAction('评论')) return;
+        const input = document.getElementById('reader-comment-input');
+        const content = (input.value || '').trim();
+        if (!content) {
+            alert('评论不能为空');
+            return;
+        }
+        await window.DBService.addComment(currentReaderArticleId, content);
+        input.value = '';
+        await refreshReaderArticle(currentReaderArticleId);
+        await updateBulletinBoard();
+    });
+    return modal;
+}
+
+function renderReaderComments(comments) {
+    const list = document.getElementById('reader-comments-list');
+    if (!list) return;
+    if (!comments.length) {
+        list.innerHTML = '<p style="color:#8b6b4f;">还没有评论，来发表第一条吧。</p>';
+        return;
+    }
+    list.innerHTML = comments.map(function (c) {
+        return '<div style="margin-bottom:8px;padding:8px;background:rgba(255,255,255,0.55);border:1px solid rgba(121,85,72,0.18);">' +
+            '<div style="font-size:.86rem;color:#7a5a3d;margin-bottom:4px;">' + escapeHtml(c.username) + ' · ' + new Date(c.createdAt).toLocaleString() + '</div>' +
+            '<div style="color:#3f2d1f;word-break:break-word;">' + escapeHtml(c.content) + '</div>' +
+            '</div>';
+    }).join('');
+}
+
+async function refreshReaderArticle(articleId) {
+    if (!window.DBService) return;
+    const article = await window.DBService.getArticle(articleId);
+    if (!article) return;
+    const isFavorited = await window.DBService.isFavorited(articleId);
+    const comments = await window.DBService.getComments(articleId);
+
+    document.getElementById('reader-title').textContent = article.title || '无题';
+    document.getElementById('reader-meta').textContent = '作者：' + (article.author || '匿名') + ' | 发布时间：' + new Date(article.createdAt).toLocaleString();
+    document.getElementById('reader-content').textContent = article.content || '';
+    document.getElementById('reader-stats').textContent = '点赞 ' + (article.likes || 0) + ' · 收藏 ' + (article.favoriteCount || 0) + ' · 评论 ' + comments.length;
+    const favoriteBtn = document.getElementById('reader-favorite-btn');
+    favoriteBtn.textContent = isFavorited ? '取消收藏' : '收藏';
+    favoriteBtn.classList.toggle('btn-secondary', isFavorited);
+    document.getElementById('reader-like-btn').textContent = '点赞 (' + (article.likes || 0) + ')';
+    renderReaderComments(comments);
+}
+
+async function openArticleReader(articleId) {
+    if (!window.DBService) return;
+    const modal = ensureArticleReaderModal();
+    modal.style.display = 'flex';
+    currentReaderArticleId = articleId;
+    await refreshReaderArticle(articleId);
 }
 
 function toggleComments(articleId) {
@@ -1611,6 +1846,7 @@ function toggleComments(articleId) {
 
 async function addComment(articleId) {
     if (!window.DBService) return;
+    if (!requireLoginForAction('评论')) return;
     const input = document.getElementById('comment-input-' + articleId);
     if (!input) return;
     const content = (input.value || '').trim();
@@ -1625,12 +1861,14 @@ async function addComment(articleId) {
 
 async function likeArticle(articleId) {
     if (!window.DBService) return;
+    if (!requireLoginForAction('点赞')) return;
     await window.DBService.toggleLike(articleId);
     await updateBulletinBoard();
 }
 
 async function toggleFavorite(articleId) {
     if (!window.DBService) return;
+    if (!requireLoginForAction('收藏')) return;
     await window.DBService.toggleFavorite(articleId);
     await updateBulletinBoard();
 }
@@ -1644,18 +1882,10 @@ async function showMyFavorites() {
         return;
     }
     container.innerHTML = '';
-    favs.forEach(article => {
-        const card = document.createElement('div');
-        card.className = 'article-card';
-        card.innerHTML =
-            '<h4>' + article.title + '</h4>' +
-            '<div class="article-meta">作者：' + article.author + '</div>' +
-            '<p>' + article.content + '</p>' +
-            '<div class="article-actions">' +
-            '  <button class="btn btn-secondary" onclick="toggleFavorite(\'' + article.id + '\')">取消收藏</button>' +
-            '</div>';
+    for (const article of favs) {
+        const card = await createArticleCardElement(article);
         container.appendChild(card);
-    });
+    }
 }
 
 // 切换背景音乐
@@ -1728,6 +1958,7 @@ window.addEventListener('DOMContentLoaded', async function () {
     } catch (e) {
         console.error('3D 初始化失败:', e);
     }
+    populateArticleSelect();
     initBackgroundMusicControls();
     bindComposeActionButtons();
     const guideCard = document.querySelector('#3d-scene .card');

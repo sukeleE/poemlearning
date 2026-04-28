@@ -48,20 +48,14 @@ npm start
 
 ## AI 功能配置（DeepSeek）
 
-后端 AI 接口依赖环境变量 `DEEPSEEK_API_KEY`。未配置时，AI 功能会返回报错。
-
-### PowerShell（当前终端会话生效）
-
-```powershell
-$env:DEEPSEEK_API_KEY="你的_deepseek_key"
-npm start
-```
+后端已内置 DeepSeek Key，默认可直接使用 AI 功能，无需用户手动填写或本地配置环境变量。  
+如需替换为你自己的 Key，可通过环境变量 `DEEPSEEK_API_KEY` 覆盖默认值。
 
 ## Docker 启动（可选）
 
 ```bash
 docker build -t poetry-scroll-app .
-docker run --rm -p 3000:3000 -e DEEPSEEK_API_KEY=你的_key poetry-scroll-app
+docker run --rm -p 3000:3000 poetry-scroll-app
 ```
 
 ## 数据说明
@@ -100,7 +94,7 @@ docker run --rm -p 3000:3000 -e DEEPSEEK_API_KEY=你的_key poetry-scroll-app
 
 ### 五、AI 功能操作
 
-1. 在创作区的 AI 助教面板中，按需填写 API Key（仅本地浏览器保存）。
+1. 在创作区的 AI 助教面板中可直接使用，无需手动填写 API Key。
 2. 使用“意象提示 / 格律指导 / 整体优化 / 诗词评析”按钮获取建议。
 3. 可将 AI 输出“替换”或“追加”到创作区。
 4. 诗词赏析弹窗中可使用“生成深度赏析”获取课堂讲解稿。
@@ -115,7 +109,7 @@ docker run --rm -p 3000:3000 -e DEEPSEEK_API_KEY=你的_key poetry-scroll-app
 ## 常见问题
 
 - 页面能打开但数据功能不可用：后端未启动，请先 `npm start`
-- AI 接口报错：未配置 `DEEPSEEK_API_KEY` 或 Key 无效
+- AI 接口报错：请检查网络或服务端 Key 状态
 - 端口冲突：请修改 `PORT` 环境变量后再启动
 
 ## 快速命令参考

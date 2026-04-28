@@ -304,7 +304,10 @@
       settingsPanel.hidden = !show;
     }
 
-    async function send() {
+    async function send(event) {
+      if (event && event.preventDefault) event.preventDefault();
+      if (event && event.stopPropagation) event.stopPropagation();
+      if (event && event.stopImmediatePropagation) event.stopImmediatePropagation();
       var text = (input.value || "").trim();
       if (!text) return;
 
@@ -353,12 +356,42 @@
       });
     });
 
-    if (sendBtn) sendBtn.addEventListener("click", function (e) { e.stopPropagation(); send(); });
+    // Defensive: prevent any ancestor form submission from reloading the page.
+    dock.addEventListener("submit", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+    });
+
+    // Global capture guard: block any submit bubbling from AI dock before other handlers.
+    document.addEventListener(
+      "submit",
+      function (e) {
+        var t = e.target;
+        if (dock.contains(t)) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+        }
+      },
+      true
+    );
+
+    if (sendBtn) {
+      sendBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+        send(e);
+      });
+    }
     if (input) {
       input.addEventListener("keydown", function (e) {
         if (e.key === "Enter" && !e.shiftKey) {
           e.preventDefault();
-          send();
+          e.stopPropagation();
+          if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+          send(e);
         }
       });
     }
